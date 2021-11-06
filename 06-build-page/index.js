@@ -4,7 +4,7 @@ const path = require('path');
 const buildFolder = path.resolve(__dirname, 'project-dist');
 
 const buildHtml = async () => {
-  try{
+  try {
     const streamTemplate = fs.createReadStream(path.resolve(__dirname, 'template.html'));
     fs.access(buildFolder, err => {
       if(err){
@@ -76,15 +76,17 @@ const readFolder = async (folderName, folderNameCopy) => {
 } 
 
 const copyAssets = async () => {
-  const folderName = path.resolve(__dirname, 'assets');
-  const folderNameCopy = path.resolve(__dirname, 'project-dist/assets');
-  fs.access(folderNameCopy, err => {
-    if(err){
-      mkdir(folderNameCopy, { recursive: true })
-      .catch(err => console.log(err)) 
-    } 
-  })
-  readFolder(folderName, folderNameCopy);
+  try {
+    const folderName = path.resolve(__dirname, 'assets');
+    const folderNameCopy = path.resolve(__dirname, 'project-dist/assets');
+    fs.access(folderNameCopy, err => {
+      if(err){
+        mkdir(folderNameCopy, { recursive: true })
+        .catch(err => console.log(err)) 
+      } 
+    })
+    readFolder(folderName, folderNameCopy);
+  } catch (err) { console.error(err) }
 }
 
 const buildPage = async () => {
