@@ -13,11 +13,3 @@ fileStream.on('readable', function(err, data) {
 })
 
 
-// fs.readFile(path.resolve(__dirname, 'text.txt'), (err, data) => {
-//   if (err) {
-//     console.error(err)
-//     return
-//   }
-//   console.log(data.toString())
-// })
-
