@@ -12,14 +12,25 @@ const buildHtml = async () => {
       } 
     });
 
-    let components = ['header', 'articles', 'footer', 'about'];
+    let components = [];
     let template;
 
-    streamTemplate.on('readable', function(err, data) {
+    streamTemplate.on('readable', async function(err, data) {
       if(err) console.error(err);
       while((data = this.read())){
       template = data.toString();
       }
+
+      const allCompFiles = await readdir(path.resolve(__dirname, 'components'), { withFileTypes: true });
+      allCompFiles.forEach(file => {
+        if(file.isFile()) {
+          let fileName = file.name.split('.');
+          if(fileName[1] == 'html'){
+            components.push(fileName[0])
+          }
+        }
+      })
+    
       components.forEach((component) => {
         if(template.includes(`${component}`)) {
           fs.createReadStream(path.resolve(__dirname, `components/${component}.html`))
