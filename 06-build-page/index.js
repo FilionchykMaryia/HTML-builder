@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { mkdir, readdir, copyFile } = require('fs/promises');
+const { mkdir, readdir, copyFile, rm } = require('fs/promises');
 const path = require('path');
 const buildFolder = path.resolve(__dirname, 'project-dist');
 
@@ -12,26 +12,24 @@ const buildHtml = async () => {
       } 
     });
 
+    let components = ['header', 'articles', 'footer', 'about'];
     let template;
+
     streamTemplate.on('readable', function(err, data) {
       if(err) console.error(err);
       while((data = this.read())){
       template = data.toString();
       }
-      fs.createReadStream(path.resolve(__dirname, 'components/header.html'))
-        .on('data', chunk => {
-          template = template.replace('{{header}}', chunk.toString())
-        });
-      fs.createReadStream(path.resolve(__dirname, 'components/articles.html'))
-        .on('data', chunk => {
-          template = template.replace('{{articles}}', chunk.toString())
-        });
-      fs.createReadStream(path.resolve(__dirname, 'components/footer.html'))
-        .on('data', chunk => {
-          template = template.replace('{{footer}}', chunk.toString())
-          const writeStream = fs.createWriteStream(path.resolve(__dirname, 'project-dist/index.html'));
-          writeStream.write(template)
-        });
+      components.forEach((component) => {
+        if(template.includes(`${component}`)) {
+          fs.createReadStream(path.resolve(__dirname, `components/${component}.html`))
+          .on('data', chunk => {
+            template = template.replace(`{{${component}}}`, chunk.toString())
+            fs.createWriteStream(path.resolve(__dirname, 'project-dist/index.html'))
+            .write(template)
+          }); 
+        }
+      })
     });
   } catch (err) { console.error(err)}
 }
@@ -79,6 +77,7 @@ const copyAssets = async () => {
   try {
     const folderName = path.resolve(__dirname, 'assets');
     const folderNameCopy = path.resolve(__dirname, 'project-dist/assets');
+    await rm(folderNameCopy, { recursive: true, force: true });
     fs.access(folderNameCopy, err => {
       if(err){
         mkdir(folderNameCopy, { recursive: true })
@@ -94,4 +93,5 @@ const buildPage = async () => {
   await buildCss();
   await copyAssets();
 }
+
 buildPage();
