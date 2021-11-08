@@ -1,10 +1,11 @@
 const fs = require('fs');
-const { readdir, mkdir, copyFile } = require('fs/promises');
+const { readdir, mkdir, copyFile, rm } = require('fs/promises');
 const path = require('path');
 const folderName = path.resolve(__dirname, 'files');
 const folderNameCopy = path.resolve(__dirname, 'files-copy');
 
 const copyDir = async (folderName, folderNameCopy) => {
+  await rm(folderNameCopy, { recursive: true, force: true });
   fs.access(folderNameCopy, err => {
     if(err){
       mkdir(folderNameCopy, { recursive: true })
